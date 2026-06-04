@@ -22,13 +22,16 @@ RUN echo "VITE_OPENAI_API_KEY=${VITE_OPENAI_API_KEY}" > .env && \
 
 RUN npm run build
 
-FROM nginx:stable-alpine AS production
+FROM node:24-alpine AS production
 
-COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
-COPY ./default.conf.template /etc/nginx/conf.d/default.conf.template
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+WORKDIR /usr/src/app
 
-EXPOSE 80
+COPY --from=builder /usr/src/app/package.json /usr/src/app/package-lock.json ./
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/dist ./dist
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENV PORT=8080
+
+EXPOSE 8080
+
+CMD ["sh", "-c", "npm run preview -- --host 0.0.0.0 --port ${PORT:-8080}"]
