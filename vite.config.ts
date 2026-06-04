@@ -4,6 +4,11 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import path from 'path';
 import UnpluginInjectPreload from 'unplugin-inject-preload/vite';
 
+const previewAllowedHosts = (process.env.VITE_ALLOWED_HOSTS || '')
+    .split(',')
+    .map((host) => host.trim())
+    .filter(Boolean);
+
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [
@@ -51,6 +56,6 @@ export default defineConfig({
     preview: {
         host: '0.0.0.0',
         port: 8080,
-        allowedHosts: ['.snapaslabs.com'],
+        allowedHosts: previewAllowedHosts,
     },
 });
